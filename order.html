@@ -54,11 +54,12 @@
                 <a href="index.html" style="display: inline-block; margin-top: 20px; padding: 10px 25px; background: #1890ff; color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">Return to Home</a>
             </div>
 
-            <form id="orderForm" class="order-form" style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border: 1px solid #eee;">
+            <form id="orderForm" action="https://formsubmit.co/digital.work.3442@gmail.com" method="POST" class="order-form" style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border: 1px solid #eee;">
                 <!-- Formsubmit Configuration -->
                 <input type="hidden" name="_captcha" value="false">
                 <input type="hidden" name="_subject" value="New Website Order - RN Herbal India">
                 <input type="hidden" name="_template" value="table">
+                <input type="hidden" name="_next" id="nextUrl" value="">
                 <input type="hidden" name="_autoresponse" value="Thank you for choosing RN Herbal India! We have successfully received your order for the RN Power Combo (₹3000). Your order will be dispatched as Cash On Delivery. We will reach out to you if we need any further information.">
                 
                 <h3 class="form-title" style="border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-bottom: 20px; color: #222;"><i class="fas fa-user-circle" style="color: #1890ff;"></i> Customer Details</h3>
@@ -76,6 +77,7 @@
 
                 <div class="form-group" style="margin-bottom: 25px;">
                     <label for="email" style="font-weight: 600; color: #444;"><i class="fas fa-envelope"></i> Email Address *</label>
+                    <!-- IMPORTANT: FormSubmit requires the exact name 'email' for autoresponses -->
                     <input type="email" id="email" name="email" placeholder="Your email address" required style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em;">
                     <small style="color: #1890ff; font-size: 0.85em; display: block; margin-top: 6px;"><i class="fas fa-info-circle"></i> Order confirmation tracking will be sent to this email automatically.</small>
                 </div>
@@ -117,7 +119,7 @@
                     </div>
                 </div>
 
-                <button type="submit" id="submitBtn" class="order-btn" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); color: white; border: none; padding: 16px; width: 100%; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(245, 124, 0, 0.4);">
+                <button type="submit" id="submitBtn" class="order-btn" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); color: white; border: none; padding: 16px; width: 100%; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(245, 124, 0, 0.4);" onclick="this.innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Processing Securely...';">
                     <i class="fas fa-check-circle"></i> PLACE ORDER NOW (₹3000)
                 </button>
                 <p style="text-align: center; font-size: 0.9em; color: #888; margin-top: 15px;">
@@ -128,43 +130,20 @@
     </main>
 
     <script>
-        document.getElementById('orderForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            const btn = document.getElementById('submitBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Securely...';
-            btn.disabled = true;
-            btn.style.opacity = '0.7';
+        // Set the dynamic _next URL so FormSubmit redirects back smoothly to this exact page
+        document.getElementById('nextUrl').value = window.location.href.split('?')[0] + "?success=true";
 
-            const form = event.target;
-            const formData = new FormData(form);
-
-            // Send to FormSubmit via AJAX
-            fetch("https://formsubmit.co/ajax/digital.work.3442@gmail.com", {
-                method: "POST",
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    form.style.display = 'none';
-                    document.getElementById('orderStatus').style.display = 'block';
-                    window.scrollTo({ top: document.querySelector('.order-form-section').offsetTop - 50, behavior: 'smooth' });
-                } else {
-                    alert("There was an error processing your order. Please try again.");
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    btn.style.opacity = '1';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("Network error occurred. Please try again or check your internet connection.");
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                btn.style.opacity = '1';
-            });
+        // Handle success message visibility without AJAX issues
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'true') {
+                document.getElementById('orderForm').style.display = 'none';
+                document.getElementById('orderStatus').style.display = 'block';
+                window.scrollTo({ top: document.querySelector('.order-form-section').offsetTop - 50, behavior: 'smooth' });
+                
+                // Clear URL to remove the ?success=true visually
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
         });
     </script>
     <script src="./script.js"></script>
